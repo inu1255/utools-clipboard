@@ -1,0 +1,223 @@
+body {
+	margin: 0;
+	font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+.list {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	overflow-y: auto;
+	overflow-x: hidden;
+	user-select: none;
+}
+.list::-webkit-scrollbar {
+	width: 2px;
+}
+.list::-webkit-scrollbar-thumb {
+	background-color: #999999;
+}
+.list .list-item {
+	display: flex;
+	width: 100%;
+	height: 48px;
+	cursor: pointer;
+	padding-right: 60px;
+	box-sizing: border-box;
+}
+.list .list-item-selected {
+	background-color: #dee2e6;
+}
+.list .list-item-icon {
+	width: 60px;
+	height: 48px;
+	line-height: 48px;
+	text-align: center;
+}
+.list .list-item-icon > img {
+	max-width: 32px;
+	vertical-align: middle;
+}
+.list .list-item-content {
+	flex: 1;
+	width: 0;
+}
+.list .list-item-content > div {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.list .list-item-content .list-item-title {
+	color: #212121;
+	padding-top: 3px;
+	height: 24px;
+	line-height: 24px;
+	font-size: 14px;
+}
+.list .list-item-content .list-item-description {
+	color: rgba(0, 0, 0, 0.5);
+	line-height: 16px;
+	font-size: 12px;
+}
+.list .quick-index-identity {
+	position: fixed;
+	top: 0;
+	right: 0;
+	width: 60px;
+	font-size: 16px;
+	color: #212121;
+	font-weight: 200;
+}
+.list .quick-index-identity > div {
+	height: 48px;
+	line-height: 48px;
+	text-align: center;
+}
+.doc-container {
+	display: flex;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+.doc-container .doc-menu {
+	position: relative;
+	width: 32%;
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+	border-right: 1px solid #eee;
+	box-sizing: border-box;
+	user-select: none;
+}
+.doc-container .doc-menu .doc-item {
+	height: 48px;
+	padding: 0 5px 0 10px;
+	box-sizing: border-box;
+	cursor: pointer;
+}
+.doc-container .doc-menu .doc-item > div {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.doc-container .doc-menu .doc-item .doc-item-t {
+	color: #212121;
+	padding-top: 3px;
+	line-height: 24px;
+	font-size: 14px;
+}
+.doc-container .doc-menu .doc-item .doc-item-d {
+	color: rgba(0, 0, 0, 0.5);
+	line-height: 16px;
+	font-size: 12px;
+}
+.doc-container .doc-menu .doc-item .mark {
+	color: #f18325;
+}
+.doc-container .doc-menu .doc-item-selected {
+	background-color: #dee2e6;
+}
+.doc-container .doc-menu .empty {
+	color: #bbb;
+	width: 100%;
+	text-align: center;
+	font-size: 14px;
+	padding-top: 15px;
+	font-weight: 200;
+}
+.doc-container .doc-content {
+	position: relative;
+	width: 68%;
+	height: 100%;
+	background-color: #ffffff;
+}
+.doc-container .doc-content > iframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border: none;
+	outline: none;
+}
+.doc-container .doc-content .markdown-body {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+	padding: 10px 15px;
+	box-sizing: border-box;
+}
+.doc-container .select-handle {
+	position: fixed;
+	z-index: 999;
+	box-shadow: 0 0 10px #888;
+	display: flex;
+	height: 22px;
+	line-height: 22px;
+	width: 100px;
+	font-size: 12px;
+	cursor: pointer;
+	border-radius: 2px;
+}
+.doc-container .select-handle > div {
+	flex: 1;
+	text-align: center;
+}
+.doc-container .select-handle .handle-copy {
+	background-color: #f3f3f3;
+	color: #515151;
+	border-top-left-radius: 2px;
+	border-bottom-left-radius: 2px;
+}
+.doc-container .select-handle .handle-translate {
+	background-color: #f6b94a;
+	color: #fff;
+	border-top-right-radius: 2px;
+	border-bottom-right-radius: 2px;
+}
+.dark-mode .list .list-item-content .list-item-title {
+	color: #e6e6e6;
+}
+.dark-mode .list .list-item-content .list-item-description {
+	color: #ababab;
+}
+.dark-mode .list .list-item-selected {
+	background-color: #585958;
+}
+.dark-mode .list .quick-index-identity {
+	color: #cccccc;
+}
+.dark-mode .doc-container .doc-menu {
+	border-color: #666666;
+}
+.dark-mode .doc-container .doc-menu::-webkit-scrollbar-track-piece {
+	background-color: #303133;
+}
+.dark-mode .doc-container .doc-menu::-webkit-scrollbar-thumb {
+	background-color: #666666;
+	border-color: #303133;
+}
+.dark-mode .doc-container .doc-menu::-webkit-scrollbar-thumb:hover {
+	background-color: #999999;
+}
+.dark-mode .doc-container .doc-menu .doc-item .doc-item-t {
+	color: #e6e6e6;
+}
+.dark-mode .doc-container .doc-menu .doc-item .doc-item-d {
+	color: #ababab;
+}
+.dark-mode .doc-container .doc-menu .doc-item-selected {
+	background-color: #585958;
+}
+.dark-mode .doc-container .doc-menu .empty {
+	color: #777777;
+}
+.dark-mode .doc-container .doc-content {
+	background-color: #e6e6e6;
+}

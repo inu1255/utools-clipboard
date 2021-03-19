@@ -1,0 +1,24 @@
+{
+  "name": "utools-vscode",
+  "version": "v1.5.2",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^13.1.0",
+    "@typescript-eslint/eslint-plugin": "^4.18.0",
+    "@typescript-eslint/parser": "^4.18.0",
+    "asar": "^3.0.3",
+    "eslint": "^7.22.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "prettier": "^2.2.1",
+    "typescript": "^4.2.3"
+  },
+  "dependencies": {
+    "utools-helper": "^1.3.5"
+  },
+  "scripts": {
+    "prettier": "prettier --write {playground,src,tests,typings}/**/*.{ts,js}",
+    "lint": "eslint {playground,src,tests,typings}/**/*.{ts,js}"
+  }
+}
