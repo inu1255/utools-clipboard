@@ -22,6 +22,7 @@ function refreshHistory() {
 	for (let item of items) {
 		historys.push(itemMap(item));
 	}
+	window.exports.clipboard.args.placeholder = "搜索(" + historys.length + ")条";
 }
 
 function pbpaste() {
@@ -46,14 +47,17 @@ clipboardListener.on("change", () => {
 	item.time = Date.now();
 	for (let i = 0; i < historys.length; i++) {
 		let x = historys[i];
-		if (x._id == item._id) {
-			historys.splice(i, 1);
-			break;
+		if (
+			x._id == item._id ||
+			(i > 1000 && ((item.type == "text" && item.data.length > 1024) || item.type == "image"))
+		) {
+			historys.splice(i--, 1);
 		}
 	}
 	historys.unshift(itemMap(item));
+	window.exports.clipboard.args.placeholder = "搜索(" + historys.length + ")条";
 	utools.db.put(item);
-	if (historys.length > 200) {
+	if (historys.length > 5000) {
 		let x = historys.pop();
 		utools.db.remove(x._id);
 	}
