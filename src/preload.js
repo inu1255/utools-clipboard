@@ -22,6 +22,7 @@ function refreshHistory() {
 	for (let item of items) {
 		historys.push(itemMap(item));
 	}
+	console.log("初始化条数", items.length);
 	window.exports.clipboard.args.placeholder = "搜索(" + historys.length + ")条";
 }
 
@@ -47,11 +48,13 @@ clipboardListener.on("change", () => {
 	item.time = Date.now();
 	for (let i = 0; i < historys.length; i++) {
 		let x = historys[i];
-		if (
-			x._id == item._id ||
-			(i > 1000 && ((item.type == "text" && item.data.length > 1024) || item.type == "image"))
-		) {
+		if (x._id == item._id) {
 			historys.splice(i--, 1);
+		}
+		if (i > 100 && x.large) {
+			historys.splice(i--, 1);
+			utools.db.remove(x._id);
+			console.log("内容太大删除", i, x);
 		}
 	}
 	historys.unshift(itemMap(item));
@@ -60,6 +63,7 @@ clipboardListener.on("change", () => {
 	if (historys.length > 5000) {
 		let x = historys.pop();
 		utools.db.remove(x._id);
+		console.log("超过5000条删除", historys.length, x);
 	}
 });
 
@@ -86,6 +90,7 @@ function itemMap(x) {
 			title: "[" + (/image\/\w+/.exec(x.data) || ["image"])[0] + "]",
 			description: timestamp(new Date(x.time)),
 			icon: x.data,
+			large: true,
 			click() {
 				utools.copyImage(x.data);
 			},
@@ -96,6 +101,7 @@ function itemMap(x) {
 			title: x.data,
 			description: timestamp(new Date(x.time)),
 			icon: "res/text.svg",
+			large: x.data.length > 512,
 			click() {
 				utools.copyText(x.data);
 			},
@@ -106,6 +112,7 @@ function itemMap(x) {
 			title: x.data,
 			description: timestamp(new Date(x.time)),
 			icon: "res/file.svg",
+			large: false,
 			click() {
 				utools.copyFile(x.data);
 			},
