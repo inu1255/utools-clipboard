@@ -28,12 +28,12 @@ function refreshHistory() {
 
 function pbpaste() {
 	let file;
-	if (utools.isWindows()) {
-		const rawFilePath = clipboard.readBuffer("FileNameW").toString("ucs2");
-		file = rawFilePath.replace(new RegExp(String.fromCharCode(0), "g"), "");
-	} else if (remote.process.platform == "darwin") {
-		file = clipboard.read("public.file-url").replace("file://", "");
-	}
+	// if (utools.isWindows()) {
+	// 	const rawFilePath = clipboard.readBuffer("FileNameW").toString("ucs2");
+	// 	file = rawFilePath.replace(new RegExp(String.fromCharCode(0), "g"), "");
+	// } else if (remote.process.platform == "darwin") {
+	// 	file = clipboard.read("public.file-url").replace("file://", "");
+	// }
 	if (file) return {type: "file", data: file};
 	let image = clipboard.readImage();
 	if (!image.isEmpty()) return {type: "image", data: image.toDataURL()};
