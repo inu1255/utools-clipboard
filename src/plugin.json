@@ -8,6 +8,20 @@
 	"preload": "preload.js",
 	"unpack": "@(platform*|*.exe)",
 	"logo": "logo.png",
-	"platform": ["win32", "darwin", "linux"],
-	"features": [{"code": "clipboard", "explain": "剪切板历史、剪贴板快速粘贴", "cmds": ["剪切板", "剪贴板", "Clipboard"]}]
+	"platform": [
+		"win32",
+		"darwin",
+		"linux"
+	],
+	"features": [
+		{
+			"code": "clipboard",
+			"explain": "剪切板历史、剪贴板快速粘贴",
+			"cmds": [
+				"剪切板",
+				"剪贴板",
+				"Clipboard"
+			]
+		}
+	]
 }
