@@ -1,13 +1,19 @@
 root = true
 
 [*]
+charset = utf-8
 indent_style = tab
 indent_size = 2
-charset = utf-8
-trim_trailing_whitespace = true
-insert_final_newline = true
 end_of_line = lf
-max_line_length = 120
 
-[*.{js,json}]
-max_line_length = 100
+[*.json]
+indent_style = space
+indent_size = 2
+
+[*.bat]
+charset = gbk
+end_of_line = crlf
+
+[*.nsi]
+charset = gbk
+end_of_line = crlf

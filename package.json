@@ -4,24 +4,26 @@
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
+    "@babel/eslint-parser": "^7.17.0",
+    "@nuxt/typescript-build": "^2.1.0",
+    "@nuxtjs/eslint-config-typescript": "^6.0.1",
+    "@nuxtjs/eslint-module": "^3.0.2",
     "@types/node": "^13.1.0",
-    "@typescript-eslint/eslint-plugin": "^4.18.0",
-    "@typescript-eslint/parser": "^4.18.0",
     "asar": "^3.0.3",
-    "eslint": "^7.22.0",
-    "eslint-config-prettier": "^8.1.0",
-    "eslint-plugin-prettier": "^3.3.1",
-    "prettier": "^2.2.1",
-    "prisma": "^3.12.0",
-    "typescript": "^4.2.3"
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-nuxt": "^2.0.0",
+    "eslint-plugin-prettier": "^3.4.1",
+    "eslint-plugin-vue": "^7.20.0",
+    "fs-extra": "^8.1.0",
+    "prettier": "^2.6.2"
   },
   "dependencies": {
-    "@prisma/client": "^3.12.0",
-    "clipboard-event": "^1.5.0",
     "utools-helper": "^1.3.5"
   },
   "scripts": {
     "prettier": "prettier --write {playground,src,tests,typings}/**/*.{ts,js}",
-    "lint": "eslint {playground,src,tests,typings}/**/*.{ts,js}"
+    "lint": "eslint {playground,src,tests,typings}/**/*.{ts,js}",
+    "lint-fix": "eslint {playground,src,tests,typings}/**/*.{ts,js} --fix"
   }
 }
