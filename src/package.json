@@ -4,7 +4,7 @@
   "description": "1. 剪贴板插件数据为纯内存操作，不会写入数据库和同步，重启uTools将全部丢失",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "init": "prisma init"
   },
   "author": "",
   "license": "ISC",

@@ -1,0 +1,23 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+	output   = "../prisma-client"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Clipdata {
+  id   Int      @id @default(autoincrement())
+  type String
+  desc String?
+  data Json
+  time DateTime
+
+	@@index([time])
+	@@map("clipdata")
+}
