@@ -1,17 +1,13 @@
 {
   "name": "src",
   "version": "1.0.0",
-  "description": "1. 剪贴板插件数据为纯内存操作，不会写入数据库和同步，重启uTools将全部丢失",
+  "description": "",
   "main": "index.js",
-  "scripts": {
-    "init": "prisma init"
-  },
+  "scripts": {},
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "clipboard-event": "^1.5.0",
     "fs-extra": "^8.1.0",
-    "pinyin-match": "^1.2.1",
     "yaml": "^2.0.0"
   }
 }

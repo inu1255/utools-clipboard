@@ -2,7 +2,6 @@ const fs = require("fs-extra");
 const path = require("path");
 const {clipboard} = require("electron");
 const crypto = require("crypto");
-const clipboardListener = require("clipboard-event");
 const yaml = require("yaml");
 const home = utools.getPath("home");
 const config = {
@@ -22,8 +21,6 @@ let historys;
 let snippets;
 utools.onPluginReady(refreshHistory);
 utools.onDbPull(refreshHistory);
-// To start listening
-clipboardListener.startListening();
 
 class Db {
 	allDocs() {
@@ -73,8 +70,18 @@ function pbpaste() {
 	if (text.trim()) return {type: "text", data: text};
 }
 
-clipboardListener.on("change", () => {
-	let item = pbpaste();
+function watchClipboard(fn) {
+	let prev = {};
+	setInterval(function () {
+		let item = pbpaste();
+		if (item && prev.data != item.data) {
+			prev = item;
+			fn(item);
+		}
+	}, 500);
+}
+
+watchClipboard((item) => {
 	if (!item) return;
 	if (!historys) refreshHistory();
 	item._id = crypto.createHash("md5").update(item.data).digest("hex");
@@ -186,7 +193,10 @@ function loadSnippet(reload) {
 			snippets = yaml.parse(text);
 			return snippets;
 		},
-		() => ({})
+		() => {
+			snippets = {};
+			return snippets;
+		}
 	);
 }
 
@@ -284,6 +294,3 @@ window.exports = {
 		},
 	},
 };
-
-// To stop listening
-// clipboardListener.stopListening();
