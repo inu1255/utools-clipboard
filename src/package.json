@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {},
-  "author": "",
-  "license": "ISC",
+  "author": "inu1255",
+  "license": "MIT",
   "dependencies": {
     "fs-extra": "^8.1.0",
     "yaml": "^2.0.0"

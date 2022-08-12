@@ -4,6 +4,8 @@ const {clipboard} = require("electron");
 const crypto = require("crypto");
 const yaml = require("yaml");
 const home = utools.getPath("home");
+const time = require("./time");
+const bs = ["b", "kb", "mb", "gb", "tb", "pb", "eb", "zb"];
 const config = {
 	limit: 5000, // 限制历史条数
 	large_limit: 100, // 图片和大文字限制
@@ -19,6 +21,99 @@ window.require = require;
 window.__WorkDir = __dirname;
 let historys;
 let snippets;
+let currentClipboardText = "";
+const clipboardModule = {
+	mode: "list",
+	args: {
+		enter: (action, callbackSetList) => {
+			if (!historys) refreshHistory();
+			callbackSetList(historys);
+		},
+		search: (action, searchWord, callbackSetList) => {
+			let pms = Promise.resolve(historys);
+			if (searchWord) {
+				searchWord = searchWord.toLowerCase();
+				let results = historys.filter((x) => {
+					return x.title && ~x.title.toLowerCase().indexOf(searchWord);
+				});
+				pms = Promise.resolve(results);
+				if (searchWord.startsWith("s ")) {
+					pms = loadSnippet(true).then((data) => {
+						let list = [];
+						// 添加snippet
+						if (snippets && /^s add \w+/.test(searchWord)) {
+							let keys = searchWord.slice(6).trim().split(" ");
+							for (let i = 0; i < keys.length; i++) {
+								let title = keys.slice(0, i + 1).join(" ");
+								let description = keys.slice(i + 1).join(" ");
+								if (!description) {
+									if (!currentClipboardText) pbpaste();
+									description = currentClipboardText;
+								}
+								if (description) {
+									list.push({
+										title,
+										description,
+										icon: "res/add.svg",
+										click() {
+											snippets[title] = description;
+											saveSnippet();
+										},
+									});
+								}
+							}
+						}
+						// 删除snippet
+						if (snippets && /^s del \w+/.test(searchWord)) {
+							let key = searchWord.slice(6).trim().split(" ");
+							for (let title in snippets) {
+								if (title.toLowerCase().indexOf(key) >= 0) {
+									let description = snippets[title];
+									list.push({
+										title,
+										description,
+										icon: "res/delete.svg",
+										click() {
+											delete snippets[title];
+											saveSnippet();
+										},
+									});
+								}
+							}
+						}
+						// 搜索snippet
+						let key = searchWord.slice(2);
+						for (let title in data) {
+							if (title.toLowerCase().indexOf(key) >= 0) {
+								let description = data[title];
+								list.push({
+									title,
+									description,
+									icon: "res/snippet.svg",
+									click() {
+										utools.copyText(description);
+										return true;
+									},
+								});
+							}
+						}
+						return list.concat(results);
+					});
+				}
+			}
+			pms.then(callbackSetList, () => callbackSetList(historys));
+		},
+		select: (action, itemData, callbackSetList) => {
+			window.utools.hideMainWindow();
+			utools.setSubInputValue("");
+			window.utools.outPlugin();
+			if (itemData.click()) {
+				utools.simulateKeyboardTap("v", utools.isMacOs() ? "command" : "ctrl");
+			}
+		},
+		placeholder: "搜索",
+	},
+};
 utools.onPluginReady(refreshHistory);
 utools.onDbPull(refreshHistory);
 
@@ -48,10 +143,9 @@ function refreshHistory() {
 		historys.push(itemMap(item));
 	}
 	console.log("初始化条数", items.length);
-	window.exports.clipboard.args.placeholder = "搜索(" + historys.length + ")条";
+	clipboardModule.args.placeholder = "搜索(" + historys.length + ")条";
 }
 
-let currentClipboardText = "";
 function pbpaste() {
 	let file;
 	// if (utools.isWindows()) {
@@ -72,13 +166,15 @@ function pbpaste() {
 
 function watchClipboard(fn) {
 	let prev = {};
-	setInterval(function () {
+	function loop() {
+		time.sleep(500).then(loop);
 		let item = pbpaste();
 		if (item && prev.data != item.data) {
 			prev = item;
 			fn(item);
 		}
-	}, 500);
+	}
+	loop();
 }
 
 watchClipboard((item) => {
@@ -98,7 +194,7 @@ watchClipboard((item) => {
 		}
 	}
 	historys.unshift(itemMap(item));
-	window.exports.clipboard.args.placeholder = "搜索(" + historys.length + ")条";
+	clipboardModule.args.placeholder = "搜索(" + historys.length + ")条";
 	db.put(item);
 	if (historys.length > config.limit) {
 		let x = historys.pop();
@@ -123,7 +219,6 @@ function timestamp(t) {
 	return `${year}-${month}-${date} ${hours}:${mintues}:${seconds}`;
 }
 
-const bs = ["b", "kb", "mb", "gb", "tb", "pb", "eb", "zb"];
 /**
  * 字节数转换
  * @param {number} size
@@ -201,96 +296,5 @@ function loadSnippet(reload) {
 }
 
 window.exports = {
-	clipboard: {
-		mode: "list",
-		args: {
-			enter: (action, callbackSetList) => {
-				if (!historys) refreshHistory();
-				callbackSetList(historys);
-			},
-			search: (action, searchWord, callbackSetList) => {
-				let pms = Promise.resolve(historys);
-				if (searchWord) {
-					searchWord = searchWord.toLowerCase();
-					let results = historys.filter((x) => {
-						return x.title && ~x.title.toLowerCase().indexOf(searchWord);
-					});
-					pms = Promise.resolve(results);
-					if (searchWord.startsWith("s ")) {
-						pms = loadSnippet(true).then((data) => {
-							let list = [];
-							// 添加snippet
-							if (snippets && /^s add \w+/.test(searchWord)) {
-								let keys = searchWord.slice(6).trim().split(" ");
-								for (let i = 0; i < keys.length; i++) {
-									let title = keys.slice(0, i + 1).join(" ");
-									let description = keys.slice(i + 1).join(" ");
-									if (!description) {
-										if (!currentClipboardText) pbpaste();
-										description = currentClipboardText;
-									}
-									if (description) {
-										list.push({
-											title,
-											description,
-											icon: "res/add.svg",
-											click() {
-												snippets[title] = description;
-												saveSnippet();
-											},
-										});
-									}
-								}
-							}
-							// 删除snippet
-							if (snippets && /^s del \w+/.test(searchWord)) {
-								let key = searchWord.slice(6).trim().split(" ");
-								for (let title in snippets) {
-									if (title.toLowerCase().indexOf(key) >= 0) {
-										let description = snippets[title];
-										list.push({
-											title,
-											description,
-											icon: "res/delete.svg",
-											click() {
-												delete snippets[title];
-												saveSnippet();
-											},
-										});
-									}
-								}
-							}
-							// 搜索snippet
-							let key = searchWord.slice(2);
-							for (let title in data) {
-								if (title.toLowerCase().indexOf(key) >= 0) {
-									let description = data[title];
-									list.push({
-										title,
-										description,
-										icon: "res/snippet.svg",
-										click() {
-											utools.copyText(description);
-											return true;
-										},
-									});
-								}
-							}
-							return list.concat(results);
-						});
-					}
-				}
-				pms.then(callbackSetList, () => callbackSetList(historys));
-			},
-			select: (action, itemData, callbackSetList) => {
-				window.utools.hideMainWindow();
-				utools.setSubInputValue("");
-				window.utools.outPlugin();
-				if (itemData.click()) {
-					utools.simulateKeyboardTap("v", utools.isMacOs() ? "command" : "ctrl");
-				}
-			},
-			placeholder: "搜索",
-		},
-	},
+	clipboard: clipboardModule,
 };
