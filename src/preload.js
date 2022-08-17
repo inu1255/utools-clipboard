@@ -32,7 +32,19 @@ const clipboardModule = {
 		search: (action, searchWord, callbackSetList) => {
 			let pms = Promise.resolve(historys);
 			if (searchWord) {
-				searchWord = searchWord.toLowerCase();
+				const toLower = function (str) {
+                                  return str
+                                    .split(" ")
+                                    .map((s, index) => {
+                                      if (index < 3) {
+                                        return s.toLowerCase();
+                                      } else {
+                                        return s;
+                                      }
+                                    })
+                                    .join(" ");
+                                };
+                                searchWord = toLower(searchWord);				
 				let results = historys.filter((x) => {
 					return x.title && ~x.title.toLowerCase().indexOf(searchWord);
 				});
