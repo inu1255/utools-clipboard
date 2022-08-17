@@ -33,18 +33,18 @@ const clipboardModule = {
 			let pms = Promise.resolve(historys);
 			if (searchWord) {
 				const toLower = function (str) {
-                                  return str
-                                    .split(" ")
-                                    .map((s, index) => {
-                                      if (index < 3) {
-                                        return s.toLowerCase();
-                                      } else {
-                                        return s;
-                                      }
-                                    })
-                                    .join(" ");
-                                };
-                                searchWord = toLower(searchWord);				
+					return str
+						.split(" ")
+						.map((s, index) => {
+							if (index < 3) {
+								return s.toLowerCase();
+							} else {
+								return s;
+							}
+						})
+						.join(" ");
+				};
+				searchWord = toLower(searchWord);			
 				let results = historys.filter((x) => {
 					return x.title && ~x.title.toLowerCase().indexOf(searchWord);
 				});
