@@ -32,16 +32,16 @@ const clipboardModule = {
 		search: (action, searchWord, callbackSetList) => {
 			let pms = Promise.resolve(historys);
 			if (searchWord) {
-				searchWord = searchWord.toLowerCase();
+				const lowerWord = searchWord.toLowerCase();
 				let results = historys.filter((x) => {
-					return x.title && ~x.title.toLowerCase().indexOf(searchWord);
+					return x.title && ~x.title.toLowerCase().indexOf(lowerWord);
 				});
 				pms = Promise.resolve(results);
-				if (searchWord.startsWith("s ")) {
+				if (lowerWord.startsWith("s ")) {
 					pms = loadSnippet(true).then((data) => {
 						let list = [];
 						// 添加snippet
-						if (snippets && /^s add \w+/.test(searchWord)) {
+						if (snippets && /^s add \w+/.test(lowerWord)) {
 							let keys = searchWord.slice(6).trim().split(" ");
 							for (let i = 0; i < keys.length; i++) {
 								let title = keys.slice(0, i + 1).join(" ");
@@ -64,8 +64,8 @@ const clipboardModule = {
 							}
 						}
 						// 删除snippet
-						if (snippets && /^s del \w+/.test(searchWord)) {
-							let key = searchWord.slice(6).trim().split(" ");
+						if (snippets && /^s del \w+/.test(lowerWord)) {
+							let key = lowerWord.slice(6).trim();
 							for (let title in snippets) {
 								if (title.toLowerCase().indexOf(key) >= 0) {
 									let description = snippets[title];
@@ -82,7 +82,7 @@ const clipboardModule = {
 							}
 						}
 						// 搜索snippet
-						let key = searchWord.slice(2);
+						let key = lowerWord.slice(2);
 						for (let title in data) {
 							if (title.toLowerCase().indexOf(key) >= 0) {
 								let description = data[title];
