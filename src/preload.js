@@ -147,6 +147,7 @@ function refreshHistory() {
 }
 
 function pbpaste() {
+	let list = [];
 	let file;
 	// if (utools.isWindows()) {
 	// 	const rawFilePath = clipboard.readBuffer("FileNameW").toString("ucs2");
@@ -154,24 +155,25 @@ function pbpaste() {
 	// } else if (remote.process.platform == "darwin") {
 	// 	file = clipboard.read("public.file-url").replace("file://", "");
 	// }
-	if (file) return {type: "file", data: file};
+	if (file) list.push({type: "file", data: file});
 	let image = clipboard.readImage();
 	let size = image.getSize();
 	if (!image.isEmpty())
-		return {type: "image", size: `${size.width}x${size.height}`, data: image.toDataURL()};
+		list.push({type: "image", size: `${size.width}x${size.height}`, data: image.toDataURL()});
 	let text = clipboard.readText();
 	currentClipboardText = text;
-	if (text.trim()) return {type: "text", data: text};
+	if (text.trim()) list.push({type: "text", data: text});
+	return list;
 }
 
 function watchClipboard(fn) {
 	let prev = {};
 	function loop() {
 		time.sleep(500).then(loop);
-		let item = pbpaste();
-		if (item && prev.data != item.data) {
-			prev = item;
-			fn(item);
+		let list = pbpaste();
+		if (list[0] && prev.data != list[0].data) {
+			prev = list[0];
+			list.forEach(fn);
 		}
 	}
 	loop();
@@ -199,7 +201,7 @@ watchClipboard((item) => {
 	if (historys.length > config.limit) {
 		let x = historys.pop();
 		db.remove(x._id);
-		console.log("超过上线删除", historys.length, x);
+		console.log("超过上限删除", historys.length, x);
 	}
 });
 
