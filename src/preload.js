@@ -22,98 +22,7 @@ window.__WorkDir = __dirname;
 let historys;
 let snippets;
 let currentClipboardText = "";
-const clipboardModule = {
-	mode: "list",
-	args: {
-		enter: (action, callbackSetList) => {
-			if (!historys) refreshHistory();
-			callbackSetList(historys);
-		},
-		search: (action, searchWord, callbackSetList) => {
-			let pms = Promise.resolve(historys);
-			if (searchWord) {
-				const lowerWord = searchWord.toLowerCase();
-				let results = historys.filter((x) => {
-					return x.title && ~x.title.toLowerCase().indexOf(lowerWord);
-				});
-				pms = Promise.resolve(results);
-				if (lowerWord.startsWith("s ")) {
-					pms = loadSnippet(true).then((data) => {
-						let list = [];
-						// 添加snippet
-						if (snippets && /^s add \w+/.test(lowerWord)) {
-							let keys = searchWord.slice(6).trim().split(" ");
-							for (let i = 0; i < keys.length; i++) {
-								let title = keys.slice(0, i + 1).join(" ");
-								let description = keys.slice(i + 1).join(" ");
-								if (!description) {
-									if (!currentClipboardText) pbpaste();
-									description = currentClipboardText;
-								}
-								if (description) {
-									list.push({
-										title,
-										description,
-										icon: "res/add.svg",
-										click() {
-											snippets[title] = description;
-											saveSnippet();
-										},
-									});
-								}
-							}
-						}
-						// 删除snippet
-						if (snippets && /^s del \w+/.test(lowerWord)) {
-							let key = lowerWord.slice(6).trim();
-							for (let title in snippets) {
-								if (title.toLowerCase().indexOf(key) >= 0) {
-									let description = snippets[title];
-									list.push({
-										title,
-										description,
-										icon: "res/delete.svg",
-										click() {
-											delete snippets[title];
-											saveSnippet();
-										},
-									});
-								}
-							}
-						}
-						// 搜索snippet
-						let key = lowerWord.slice(2);
-						for (let title in data) {
-							if (title.toLowerCase().indexOf(key) >= 0) {
-								let description = data[title];
-								list.push({
-									title,
-									description,
-									icon: "res/snippet.svg",
-									click() {
-										utools.copyText(description);
-										return true;
-									},
-								});
-							}
-						}
-						return list.concat(results);
-					});
-				}
-			}
-			pms.then(callbackSetList, () => callbackSetList(historys));
-		},
-		select: (action, itemData, callbackSetList) => {
-			window.utools.hideMainWindow();
-			utools.setSubInputValue("");
-			window.utools.outPlugin();
-			if (itemData.click()) {
-				utools.simulateKeyboardTap("v", utools.isMacOs() ? "command" : "ctrl");
-			}
-		},
-		placeholder: "搜索",
-	},
-};
+const clipboardModule = makeClipboardList();
 utools.onPluginReady(refreshHistory);
 utools.onDbPull(refreshHistory);
 
@@ -297,6 +206,144 @@ function loadSnippet(reload) {
 	);
 }
 
+function makeClipboardList(isDelete) {
+	return {
+		mode: "list",
+		args: {
+			enter(action, callbackSetList) {
+				if (!historys) refreshHistory();
+				callbackSetList(historys);
+			},
+			search(action, searchWord, callbackSetList) {
+				let pms = Promise.resolve(historys);
+				this.searchWord = searchWord;
+				if (searchWord) {
+					const lowerWord = searchWord.toLowerCase();
+					let results = historys.filter((x) => {
+						return x.title && ~x.title.toLowerCase().indexOf(lowerWord);
+					});
+					pms = Promise.resolve(results);
+					if (!isDelete && lowerWord.startsWith("s ")) {
+						pms = loadSnippet(true).then((data) => {
+							let list = [];
+							// 添加snippet
+							if (snippets && /^s add \w+/.test(lowerWord)) {
+								let keys = searchWord.slice(6).trim().split(" ");
+								for (let i = 0; i < keys.length; i++) {
+									let title = keys.slice(0, i + 1).join(" ");
+									let description = keys.slice(i + 1).join(" ");
+									if (!description) {
+										if (!currentClipboardText) pbpaste();
+										description = currentClipboardText;
+									}
+									if (description) {
+										list.push({
+											title,
+											description,
+											icon: "res/add.svg",
+											click() {
+												snippets[title] = description;
+												saveSnippet();
+											},
+										});
+									}
+								}
+							}
+							// 删除snippet
+							if (snippets && /^s del \w+/.test(lowerWord)) {
+								let key = lowerWord.slice(6).trim();
+								for (let title in snippets) {
+									if (title.toLowerCase().indexOf(key) >= 0) {
+										let description = snippets[title];
+										list.push({
+											title,
+											description,
+											icon: "res/delete.svg",
+											click() {
+												delete snippets[title];
+												saveSnippet();
+											},
+										});
+									}
+								}
+							}
+							// 搜索snippet
+							let key = lowerWord.slice(2);
+							for (let title in data) {
+								if (title.toLowerCase().indexOf(key) >= 0) {
+									let description = data[title];
+									list.push({
+										title,
+										description,
+										icon: "res/snippet.svg",
+										click() {
+											utools.copyText(description);
+											return true;
+										},
+									});
+								}
+							}
+							return list.concat(results);
+						});
+					}
+				}
+				pms.then(callbackSetList, () => callbackSetList(historys));
+			},
+			select(action, itemData, callbackSetList) {
+				if (isDelete) {
+					db.remove(itemData._id);
+					let idx = historys.findIndex((x) => x._id == itemData._id);
+					if (idx >= 0) {
+						historys.splice(idx, 1);
+					}
+					return this.search(null, this.searchWord, callbackSetList);
+				}
+				utools.hideMainWindow();
+				utools.setSubInputValue("");
+				utools.outPlugin();
+				if (itemData.click()) {
+					utools.simulateKeyboardTap("v", utools.isMacOs() ? "command" : "ctrl");
+				}
+			},
+			placeholder: "搜索",
+		},
+	};
+}
+
 window.exports = {
 	clipboard: clipboardModule,
+	"clipboard.delete": makeClipboardList(true),
+	pastefile: {
+		mode: "none",
+		args: {
+			// 进入插件应用时调用
+			enter(action) {
+				utools.hideMainWindow();
+				utools.setSubInputValue("");
+				utools.outPlugin();
+				let list = pbpaste();
+				let files = [];
+				let tmp = utools.getPath("temp");
+				for (let item of list) {
+					if (item.type == "file") files.push(item.data);
+					else if (item.type == "image") {
+						let file = path.join(tmp, "clipboard.png");
+						fs.writeFileSync(
+							file,
+							Buffer.from(item.data.slice(item.data.indexOf("base64,") + 7), "base64")
+						);
+						files.push(file);
+					} else {
+						let file = path.join(tmp, "clipboard.txt");
+						fs.writeFileSync(file, item.data);
+						files.push(file);
+					}
+				}
+				if (files.length) {
+					utools.copyFile(files);
+					utools.simulateKeyboardTap("v", utools.isMacOs() ? "command" : "ctrl");
+				}
+			},
+		},
+	},
 };

@@ -1,6 +1,6 @@
 {
   "name": "clipboard",
-  "version": "1.0.0",
+  "version": "1.6.0",
   "pluginName": "剪切板",
   "description": "剪切板历史,snippet,代码片段",
   "author": "inu1255",
@@ -24,6 +24,28 @@
         "剪切板",
         "剪贴板",
         "Clipboard"
+      ]
+    },
+    {
+      "code": "clipboard.delete",
+      "explain": "删除剪贴板历史",
+      "cmds": [
+        "删除剪切板",
+        "删除剪贴板",
+        "clipboard delete"
+      ]
+    },
+    {
+      "code": "pastefile",
+      "explain": "粘贴为文件",
+      "cmds": [
+        "粘贴为文件",
+        "pastefile",
+        "paste as file",
+        {
+          "type": "img",
+          "label": "粘贴为文件"
+        }
       ]
     }
   ]
