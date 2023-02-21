@@ -17,7 +17,6 @@ try {
 	Object.assign(config, yaml.parse(fs.readFileSync(config_path, "utf8")));
 } catch (error) {}
 fs.writeFile(config_path, yaml.stringify(config));
-window.require = require;
 window.__WorkDir = __dirname;
 let historys;
 let snippets;
