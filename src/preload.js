@@ -304,7 +304,7 @@ function makeClipboardList(isDelete) {
 									list.push({
 										title,
 										description: description.code ? "运行脚本: " + description.code : description,
-										icon: "res/snippet.svg",
+										icon: description.code ? "res/terminal.svg" : "res/snippet.svg",
 										click() {
 											let a = [];
 											// eslint-disable-next-line no-eval
