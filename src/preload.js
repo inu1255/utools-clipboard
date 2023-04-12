@@ -238,10 +238,35 @@ function makeClipboardList(isDelete) {
 									if (description) {
 										list.push({
 											title,
-											description,
+											description: (snippets[title] ? "修改片段: " : "添加片段：") + description,
 											icon: "res/add.svg",
 											click() {
 												snippets[title] = description;
+												saveSnippet();
+											},
+										});
+									}
+								}
+							}
+							// 添加可执行snippet
+							if (snippets && /^s addx \w+/.test(lowerWord)) {
+								let keys = searchWord.slice(7).trim().split(" ");
+								for (let i = 0; i < keys.length; i++) {
+									let title = keys.slice(0, i + 1).join(" ");
+									let description = keys.slice(i + 1).join(" ");
+									if (!description) {
+										if (!currentClipboardText) pbpaste();
+										description = currentClipboardText;
+									}
+									if (description) {
+										list.push({
+											title,
+											description: (snippets[title] ? "修改脚本: " : "添加脚本：") + description,
+											icon: "res/addx.svg",
+											click() {
+												snippets[title] = {
+													code: description,
+												};
 												saveSnippet();
 											},
 										});
@@ -256,7 +281,9 @@ function makeClipboardList(isDelete) {
 										let description = snippets[title];
 										list.push({
 											title,
-											description,
+											description: description.code
+												? "删除脚本: " + description.code
+												: "删除片段: " + description,
 											icon: "res/delete.svg",
 											click() {
 												delete snippets[title];
@@ -269,14 +296,20 @@ function makeClipboardList(isDelete) {
 							// 搜索snippet
 							let key = lowerWord.slice(2);
 							for (let title in data) {
-								if (title.toLowerCase().indexOf(key) >= 0) {
-									let description = data[title];
+								let description = data[title];
+								if (
+									title.toLowerCase().indexOf(key) >= 0 ||
+									(description.code && key.startsWith(title + " "))
+								) {
 									list.push({
 										title,
-										description,
+										description: description.code ? "运行脚本: " + description.code : description,
 										icon: "res/snippet.svg",
 										click() {
-											utools.copyText(description);
+											let a = [];
+											// eslint-disable-next-line no-eval
+											let text = description.code ? eval(`(${description.code})`) : description;
+											utools.copyText(text);
 											return true;
 										},
 									});
